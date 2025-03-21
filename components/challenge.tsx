@@ -1,3 +1,6 @@
+"use client";
+
+import { isDomainAvailable } from "@/lib/resources";
 import {
   Button,
   Center,
@@ -13,8 +16,8 @@ import {
   SimpleGrid,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { toaster } from "./components/ui/toaster";
-import { isDomainAvailable } from "./lib/resouces";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Challenge() {
   const [domainInput, setDomainInput] = useState("");
@@ -74,33 +77,21 @@ function Challenge() {
 
   const handleAddDomain = async () => {
     if (!domainInput.trim()) {
-      toaster.create({
-        title: "Error",
-        description: "Please enter a domain",
-        type: "error",
-      });
+      toast.error("Please enter a domain");
       return;
     }
 
     const validation = validateDomain(domainInput);
 
     if (!validation.valid) {
-      toaster.create({
-        title: "Invalid Domain",
-        description: validation.message,
-        type: "error",
-      });
+      toast.error(`Invalid Domain: ${validation.message}`);
       return;
     }
 
     const lowerCaseDomain = domainInput.toLowerCase();
 
     if (domains.includes(lowerCaseDomain)) {
-      toaster.create({
-        title: "Domain Already in Cart",
-        description: "This domain is already in your cart",
-        type: "warning",
-      });
+      toast.warning("This domain is already in your cart");
       return;
     }
 
@@ -108,11 +99,7 @@ function Challenge() {
     setDomainInput("");
     await checkDomainAvailability(lowerCaseDomain);
 
-    toaster.create({
-      title: "Domain Added",
-      description: `Added ${lowerCaseDomain} to your cart`,
-      type: "success",
-    });
+    toast.success(`Added ${lowerCaseDomain} to your cart`);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -128,21 +115,13 @@ function Challenge() {
     delete (newAvailabilityStatus as Record<string, boolean>)[domainToRemove];
     setAvailabilityStatus(newAvailabilityStatus);
 
-    toaster.create({
-      title: "Domain Removed",
-      description: `Removed ${domainToRemove} from your cart`,
-      type: "info",
-    });
+    toast.info(`Removed ${domainToRemove} from your cart`);
   };
 
   const clearCart = () => {
     setDomains([]);
     setAvailabilityStatus({});
-    toaster.create({
-      title: "Cart Cleared",
-      description: "All domains have been removed from your cart",
-      type: "info",
-    });
+    toast.info("All domains have been removed from your cart");
   };
 
   const removeUnavailableDomains = () => {
@@ -150,11 +129,7 @@ function Challenge() {
       (domain) => (availabilityStatus as Record<string, boolean>)[domain]
     );
     if (domains.length === availableDomains.length) {
-      toaster.create({
-        title: "No Action Needed",
-        description: "There are no unavailable domains in your cart",
-        type: "info",
-      });
+      toast.info("There are no unavailable domains in your cart");
       return;
     }
 
@@ -170,20 +145,12 @@ function Challenge() {
     });
     setAvailabilityStatus(newAvailabilityStatus);
 
-    toaster.create({
-      title: "Unavailable Domains Removed",
-      description: `Removed ${removedCount} unavailable domain(s)`,
-      type: "success",
-    });
+    toast.success(`Removed ${removedCount} unavailable domain(s)`);
   };
 
   const copyDomainsToClipboard = () => {
     if (domains.length === 0) {
-      toaster.create({
-        title: "Empty Cart",
-        description: "There are no domains to copy",
-        type: "warning",
-      });
+      toast.warning("There are no domains to copy");
       return;
     }
 
@@ -191,18 +158,10 @@ function Challenge() {
     navigator.clipboard
       .writeText(domainsString)
       .then(() => {
-        toaster.create({
-          title: "Copied to Clipboard",
-          description: `${domains.length} domains copied to clipboard`,
-          type: "success",
-        });
+        toast.success(`${domains.length} domains copied to clipboard`);
       })
       .catch(() => {
-        toaster.create({
-          title: "Copy Failed",
-          description: "Failed to copy domains to clipboard",
-          type: "error",
-        });
+        toast.error("Failed to copy domains to clipboard");
       });
   };
 
@@ -223,11 +182,9 @@ function Challenge() {
 
   const keepBestDomains = () => {
     if (domains.length <= numDomainsRequired) {
-      toaster.create({
-        title: "No Action Needed",
-        description: `You already have ${domains.length} domains which is not more than required (${numDomainsRequired})`,
-        type: "info",
-      });
+      toast.info(
+        `You already have ${domains.length} domains which is not more than required (${numDomainsRequired})`
+      );
       return;
     }
 
@@ -251,19 +208,13 @@ function Challenge() {
     });
     setAvailabilityStatus(newAvailabilityStatus);
 
-    toaster.create({
-      title: "Kept Best Domains",
-      description: `Kept the ${numDomainsRequired} best domains based on prioritization`,
-      type: "success",
-    });
+    toast.success(
+      `Kept the ${numDomainsRequired} best domains based on prioritization`
+    );
   };
 
   const handlePurchase = () => {
-    toaster.create({
-      title: "Purchase Initiated",
-      description: `Purchase process started for ${domains.length} domains`,
-      type: "success",
-    });
+    toast.success(`Purchase process started for ${domains.length} domains`);
   };
 
   // Calculate progress value as percentage
@@ -423,6 +374,9 @@ function Challenge() {
             Keep Best {numDomainsRequired} Domains
           </Button>
         </SimpleGrid>
+
+        {/* Add ToastContainer for react-toastify */}
+        <ToastContainer position="bottom-right" />
       </VStack>
     </Center>
   );

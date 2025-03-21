@@ -1,3 +1,5 @@
+//src/lib/resource.ts
+
 export function isDomainAvailable(domain: string) {
   console.log("checking domain availability", domain);
   return new Promise((resolve) => {
